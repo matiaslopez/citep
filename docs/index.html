@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Drag & Drop con CreateJS</title>
+    <script src="https://code.createjs.com/1.0.0/createjs.min.js"></script>
+    <style>
+        canvas {
+            background-color: rgb(185, 86, 86); /* Establecer el fondo blanco */
+            border: 1px solid #000;
+        }
+
+        #contenedor {
+            width: 800px;
+            margin: 0 auto; /* Centrar horizontalmente */
+        }
+    </style>
+</head>
+<body>
+    <div id="contenedor">
+    <center><h3>Crear grupos</h3></center>
+        <p>Agrupen los superhéroes que ven en las imágenes según categorías que conformen
+            entre 2 y 8 grupos. (No puede haber 9 grupos de 1 ni un grupo de 9).
+        </p>
+        <p>
+            Para esta actividad, no deben buscar información adicional a la que aparece en las imágenes.
+            Para conformar los grupos, deben arrastrar las imágenes al área que encuentran debajo,
+            poniendo cerca a los personajes que componen cada grupo.
+        </p>
+        <p>Cuando termines, descargá la imagen y compartila en el foro de la actividad argumentando cómo fue que conformaste los grupos.
+            </p>
+        <center>
+            <canvas id="lienzo" width="800" height="600"></canvas><BR>
+                <button id="descargarBtn">Descargar imagen</button>
+            </center>
+    </div>
+
+    <script>
+        // Crear el escenario (stage) y el lienzo (canvas)
+        var canvas = document.getElementById("lienzo");
+        var stage = new createjs.Stage(canvas);
+
+        // Agregar un fondo blanco al lienzo
+        var fondo = new createjs.Shape();
+        fondo.graphics.beginFill("#FFFFFF").drawRect(0, 0, canvas.width, canvas.height);
+        stage.addChild(fondo);
+
+
+        // Crear un contenedor para las imágenes
+        var contenedor = new createjs.Container();
+        stage.addChild(contenedor);
+
+        // Lista de imágenes
+        var imagenes = [
+            "antman.png",
+            "batman.png",
+            "cyborg.png",
+            "guepardo.png",
+            "ironman.png",
+            "superman.png",
+            "thor.png",
+            "tormenta.png",
+            "warlock.png"
+        ];
+
+        // Función para cargar las imágenes
+        function cargarImagenes() {
+            for (var i = 0; i < imagenes.length; i++) {
+                var imagen = new Image();
+                imagen.src = imagenes[i];
+                imagen.index = i;
+                imagen.onload = handleImageLoad;
+            }
+        }
+
+    var positions = [[270, 200], [400, 200], [530, 200],
+                     [270, 300], [400, 300], [530, 300],
+                     [270, 400], [400, 400], [530, 400]];
+
+        // Función para manejar la carga de imágenes
+        function handleImageLoad(event) {
+            var image = event.target;
+            var bitmap = new createjs.Bitmap(image);
+
+
+            // Ajustar el tamaño de la imagen a 80x80 píxeles
+            bitmap.scaleX = bitmap.scaleY = 120 / bitmap.getBounds().width;
+
+            // Ajustar el punto de registro al centro de la imagen
+            bitmap.regX = bitmap.getBounds().width / 2;
+            bitmap.regY = bitmap.getBounds().height / 2;
+
+            // Obtener el tamaño escalado de la imagen
+            var anchoEscalado = bitmap.getBounds().width;
+            var altoEscalado = bitmap.getBounds().height;
+
+            bitmap.x = positions[image.index][0];
+            bitmap.y = positions[image.index][1];
+
+            // Configurar interactividad para arrastrar y soltar
+            bitmap.on("pressmove", function (evt) {
+                evt.currentTarget.x = evt.stageX;// - (bitmap.regX * bitmap.scaleX);
+                evt.currentTarget.y = evt.stageY; // - (bitmap.regY * bitmap.scaleY);
+                stage.update();
+            });
+
+            bitmap.on("pressup", function (evt) {
+                // Comprobar si la imagen está dentro del contenedor
+                if (evt.stageX > contenedor.x && evt.stageX < contenedor.x + contenedor.getBounds().width &&
+                    evt.stageY > contenedor.y && evt.stageY < contenedor.y + contenedor.getBounds().height) {
+                     // La imagen está dentro del contenedor
+                    // Puedes realizar acciones adicionales aquí
+                    console.log("Imagen soltada dentro del contenedor.");
+                }
+            });
+
+            // Agregar la imagen al escenario
+            contenedor.addChild(bitmap);
+            stage.update();
+        }
+
+        // Llamar a la función para cargar las imágenes
+        cargarImagenes();
+
+        // Actualizar el escenario
+        createjs.Ticker.addEventListener("tick", function () {
+            stage.update();
+        });
+
+         // Manejador de eventos para el botón de descarga
+         document.getElementById("descargarBtn").addEventListener("click", function () {
+            // Convertir el contenido del lienzo a una imagen PNG
+            var dataURL = canvas.toDataURL("image/png");
+
+            // Crear un enlace temporal para descargar la imagen
+            var enlace = document.createElement("a");
+            enlace.href = dataURL;
+            enlace.download = "agrupamientos.png";
+
+            // Simular un clic en el enlace para iniciar la descarga
+            document.body.appendChild(enlace);
+            enlace.click();
+            document.body.removeChild(enlace);
+        });
+    </script>
+</body>
+</html>
