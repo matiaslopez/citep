@@ -122,6 +122,7 @@
         // Crear el escenario (stage) y el lienzo (canvas)
         var canvas = document.getElementById("lienzo");
         var stage = new createjs.Stage(canvas);
+        createjs.Touch.enable(stage);
 
         // Agregar un fondo blanco al lienzo
         var fondo = new createjs.Shape();
