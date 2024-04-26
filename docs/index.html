@@ -11,53 +11,114 @@
             padding: 0;
             width: 100%;
             height: 100%;
+            overflow: hidden; /* Deshabilitar el desplazamiento vertical */
+        }
+
+        .contenedor {
+            width: 200%;
+            height: 100%;
+            display: flex;
+            transition: transform 0.5s ease; /* Transición suave */
+        }
+
+        .pagina-container {
+            width: 50%;
+            height: 100%;
+            overflow-y: auto; /* Habilitar el desplazamiento vertical solo cuando sea necesario */
+            padding: 20px;
+            box-sizing: border-box;
+            text-align: center;
+        }
+
+        .pagina-container:nth-child(2) {
+            background-color: #f0f0f0; /* Color de fondo para la segunda "página" */
+        }
+
+        .pagina {
+            max-width: 800px; /* Establecer un ancho máximo para el contenido */
+            margin: 0 auto; /* Centrar el contenido horizontalmente */
         }
 
         canvas {
-            background-color: rgb(255, 255, 255); /* Establecer el fondo blanco */
+            background-color: white;
             border: 1px solid #000;
-            width: 100%; /* El canvas ocupará todo el ancho del contenedor */
-            height: auto; /* Altura automática para mantener la proporción */
-            max-width: 800px; /* Establecer un ancho máximo */
-            margin: 0 auto; /* Centrar horizontalmente */
+            width: 100%;
+            height: 100%;
+            max-width: 800px;
+            margin: 0 auto;
         }
 
-        #contenedor {
-            /* text-align: center; Centrar el contenido */
-            padding: 20px; /* Espacio alrededor del contenedor */
-            max-width: 800px; /* Establecer un ancho máximo para el contenedor */
-            margin: 0 auto; /* Centrar horizontalmente */
+        .btn-container {
+            margin-top: 20px;
         }
 
-        #contenedor p {
-            max-width: 800px; /* Establecer un ancho máximo para el texto */
-            /* margin: 0 auto; Centrar horizontalmente */
-            margin: 0 auto 10px; /* Centrar horizontalmente y agregar espacio inferior */
-
+        .btn-container button {
+            display: block;
+            margin: 20px auto;
         }
     </style>
 </head>
 <body>
-    <div id="contenedor">
-    <center><h3>Entre cables y algoritmos - Actividad tema 2 - Superhéroes</h3></center>
-        <p>Agrupen los superhéroes que ven en las imágenes conformando entre 2 y 8 grupos con algún criterio.
-            No puede haber 9 grupos de 1 ni un grupo de 9.
-        </p>
-        <p>
-            Para esta actividad, no deben buscar información adicional a la que aparece en las imágenes (usen el conocimiento que tienen ahora).
-            Para conformar los grupos, deben arrastrar las imágenes dentro del área que encuentran debajo,
-            poniendo cerca a los personajes que componen cada grupo, y los grupos separados entre sí.
-        </p>
-        <p>Cuando terminen, descarguen la imagen (el botón está más abajo) y
-            compártanla en el foro de la actividad comentando el criterio de conformación de sus grupos.
+    <div class="contenedor">
+        <div class="pagina-container">
+            <div class="pagina">
+                <h3>Entre cables y algoritmos - Actividad tema 2 - Superhéroes</h3>
+            <p>Agrupen los superhéroes que ven en las imágenes conformando entre 2 y 8 grupos con algún criterio.
+                No puede haber 9 grupos de 1 ni un grupo de 9.
             </p>
-        <center>
-            <canvas id="lienzo" width="800" height="600"></canvas><BR>
-                <button id="descargarBtn">Descargar imagen</button>
-            </center>
+            <p>
+                Para esta actividad, no deben buscar información adicional a la que aparece en las imágenes (usen el conocimiento que tienen ahora).
+                Para conformar los grupos, deben arrastrar las imágenes dentro del área que encuentran debajo,
+                poniendo cerca a los personajes que componen cada grupo, y los grupos separados entre sí.
+            </p>
+            <p>Cuando terminen, descarguen la imagen (el botón está más abajo) y
+                compártanla en el foro de la actividad comentando el criterio de conformación de sus grupos.
+                </p>
+                <label for="nombre">Nombre y Apellido:</label>
+                <input type="text" id="nombre" name="nombre">
+                <div class="btn-container">
+                    <button id="comenzarBtn">Comenzar</button>
+                </div>
+            </div>
+        </div>
+        <div class="pagina-container">
+            <div class="pagina">
+                <canvas id="lienzo" width="800" height="600"></canvas>
+                <div class="btn-container">
+                    <button id="descargarBtn">Descargar imagen</button>
+                    <button id="volverBtn">Volver a las instrucciones</button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script>
+        // document.getElementById("comenzarBtn").addEventListener("click", function () {
+        //     document.querySelector(".contenedor").style.transform = "translateX(-50%)"; // Desplazar a la izquierda
+        // });
+        // var text = new createjs.Text("Clasifiación de " + nombre, "12px Arial", "#000000");
+        var text = new createjs.Text();
+
+        document.getElementById("comenzarBtn").addEventListener("click", function () {
+            // Obtener el nombre ingresado por el usuario
+            var nombre = document.getElementById("nombre").value;
+
+            text.text = "Clasifiación de " + nombre
+            text.font = "12px Arial"
+            text.color = "#000000";
+            text.x = canvas.width - 10;
+            text.y = canvas.height - 10;
+            text.textAlign = "right";
+            text.textBaseline = "alphabetic";
+            stage.addChild(text);
+            // Desplazar a la segunda página
+            document.querySelector(".contenedor").style.transform = "translateX(-50%)"; // Desplazar a la izquierda
+        });
+
+        document.getElementById("volverBtn").addEventListener("click", function () {
+            document.querySelector(".contenedor").style.transform = "translateX(0)"; // Desplazar a la derecha
+        });
+
         // Crear el escenario (stage) y el lienzo (canvas)
         var canvas = document.getElementById("lienzo");
         var stage = new createjs.Stage(canvas);
@@ -94,9 +155,9 @@
             }
         }
 
-    var positions = [[280, 210], [400, 210], [520, 210],
-                     [280, 300], [400, 300], [520, 300],
-                     [280, 390], [400, 390], [520, 390]];
+    var positions = [[270, 205], [400, 205], [530, 205],
+                     [270, 300], [400, 300], [530, 300],
+                     [270, 400], [400, 400], [530, 400]];
 
         // Función para manejar la carga de imágenes
         function handleImageLoad(event) {
@@ -105,7 +166,7 @@
 
 
             // Ajustar el tamaño de la imagen a 80x80 píxeles
-            bitmap.scaleX = bitmap.scaleY = 120 / bitmap.getBounds().width;
+            bitmap.scaleX = bitmap.scaleY = 140 / bitmap.getBounds().width;
 
             // Ajustar el punto de registro al centro de la imagen
             bitmap.regX = bitmap.getBounds().width / 2;
@@ -153,15 +214,27 @@
             stage.update();
         });
 
+        accentsTidy = function(s){
+            var r = s.toLowerCase();
+            non_asciis = {'a': '[àáâãäå]', 'ae': 'æ', 'c': 'ç', 'e': '[èéêë]', 'i': '[ìíîï]', 'n': 'ñ', 'o': '[òóôõö]', 'oe': 'œ', 'u': '[ùúûűü]', 'y': '[ýÿ]'};
+            for (i in non_asciis) { r = r.replace(new RegExp(non_asciis[i], 'g'), i); }
+            return r;
+        };
+
          // Manejador de eventos para el botón de descarga
          document.getElementById("descargarBtn").addEventListener("click", function () {
             // Convertir el contenido del lienzo a una imagen PNG
             var dataURL = canvas.toDataURL("image/png");
 
+            var nombre = document.getElementById("nombre").value;
+
+            nombre = accentsTidy(nombre);
+            nombre = nombre.replace(/ /g, "_");
+
             // Crear un enlace temporal para descargar la imagen
             var enlace = document.createElement("a");
             enlace.href = dataURL;
-            enlace.download = "agrupamientos.png";
+            enlace.download = "grupos_" + nombre +".png";
 
             // Simular un clic en el enlace para iniciar la descarga
             document.body.appendChild(enlace);
