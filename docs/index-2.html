@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Entre cables y algoritmos - Actividad tema 2 - Superhéroes</title>
     <script src="https://code.createjs.com/1.0.0/createjs.min.js"></script>
+    <script src="graph_func.js"></script>
     <style>
         body, html {
             margin: 0;
@@ -90,6 +91,7 @@
                 <canvas id="lienzo" width="800" height="600"></canvas>
                 <div class="btn-container">
                     <button id="descargarBtn">Descargar imagen</button>
+                    <button id="reiniciarBtn">Reiniciar</button>
                     <button id="volverBtn">Volver a las instrucciones</button>
                 </div>
             </div>
@@ -97,6 +99,17 @@
     </div>
 
     <script>
+
+        document.getElementById("reiniciarBtn").addEventListener("click", function () {
+            // Obtener el nombre ingresado por el usuario
+            for (var key in current_elems) {
+                bitmap = current_elems[key];
+                set_initial_positions(bitmap, key);
+                bitmap.shadow = null;
+                bitmap.group = key
+            }
+            current_on_stage = {};
+        });
         // var text = new createjs.Text("Clasifiación de " + nombre, "12px Arial", "#000000");
         var text = new createjs.Text();
 
@@ -108,34 +121,36 @@
 
 
         function get_near_images(bitmap) {
-            threshold = 50;
+            threshold = 150;
             near_images = [];
-            for (var key in current_elems) {
-                if (key == bitmap.index) {
+            for (var key in current_on_stage) {
+                console.log("Current image position", bitmap.x, bitmap.y)
+                if (current_on_stage[key].image.src == bitmap.image.src) {
                     continue;
                 }
-                var other_bitmap = current_elems[key];
+                var other_bitmap = current_on_stage[key];
                 var distance = Math.sqrt(Math.pow(bitmap.x - other_bitmap.x, 2) + Math.pow(bitmap.y - other_bitmap.y, 2));
+                // console.log("Distance", distance, bitmap.image.src, other_bitmap.image.src)
                 if (distance < threshold) {
                     near_images.push(other_bitmap);
+                    console.log("Near image")
                 }
             }
 
             return near_images;
         }
 
-        // function get_shadow(bitmap) {
-        //     var near_images = get_near_images(bitmap);
-        //     if (near_images.length == 0) {
-        //         return null;
-        //     }
-
-        //     var shadow = new createjs.Shadow(colors[Object.keys(current_groups).length], 0, 0, 10);
-        //     return shadow;
-        // }
-
         function get_shadow_color_temp(bitmap) {
-            var idx = bitmap.image.index;
+            near_images = get_near_images(bitmap);
+            var idx = bitmap.group;
+
+            if (near_images.length > 0) {
+                console.log(near_images[0])
+                idx = near_images[0].group;
+            } else {
+                idx = bitmap.image.index;
+            }
+            bitmap.group = idx;
 
             var res = colors_palette[idx%colors_palette.length];
             return res;
@@ -152,11 +167,7 @@
 
         // Agregar un fondo blanco al lienzo
         var fondo = new createjs.Shape();
-        // fondo.graphics.beginFill("#FFFF00")
-        //         // .drawRect(0, 0, canvas.width, canvas.height)
-        //         .drawRect(0, 0, canvas.width, canvas.height-120);
         fondo.graphics.beginFill("#AAAAAA66")
-                // .drawRect(0, 0, canvas.width, canvas.height)
                 .drawRect(0, canvas.height-120, canvas.width, canvas.height);
 
         stage.addChild(fondo);
@@ -187,15 +198,21 @@
                     [540-50,550], [630-50, 550], [720-50, 550], [800-50, 550],
                      ];
 
+        function set_initial_positions(bitmap, index){
+            bitmap.x = positions[index][0];
+            bitmap.y = positions[index][1];
+        }
+
         // Función para manejar la carga de imágenes
         function handleImageLoad(event) {
-            console.log(event.target)
+            // console.log(event.target)
             var image = event.target;
             var bitmap = new createjs.Bitmap(image);
 
             current_elems[image.index] = bitmap;
 
             bitmap.index = event.index;
+            bitmap.group = image.index;
 
             // Ajustar el tamaño de la imagen a 80x80 píxeles
             bitmap.scaleX = bitmap.scaleY = 120 / bitmap.getBounds().width;
@@ -208,9 +225,9 @@
             var anchoEscalado = bitmap.getBounds().width;
             var altoEscalado = bitmap.getBounds().height;
 
-            bitmap.x = positions[image.index][0];
-            bitmap.y = positions[image.index][1];
-
+            // bitmap.x = positions[image.index][0];
+            // bitmap.y = positions[image.index][1];
+            set_initial_positions(bitmap, image.index);
             // bitmap.shadow = new createjs.Shadow("#FF0000", 0, 0, 10);
 
             // Configurar interactividad para arrastrar y soltar
@@ -232,11 +249,12 @@
                     // add shadow to object
                     var col_shadow = "#FF0000"
                     col_shadow = get_shadow_color_temp(currentBitmap);
-                    console.log("col_shadow", col_shadow)
+                    // console.log("col_shadow", col_shadow)
                     currentBitmap.shadow = new createjs.Shadow(col_shadow, 0, 0, 40);
                     current_on_stage[evt.currentTarget.image.index] = currentBitmap;
                 } else {
                     currentBitmap.shadow = null//new createjs.Shadow("#00FF00", 0, 0, 10);
+                    currentBitmap.group = currentBitmap.index;
                     delete current_on_stage[evt.currentTarget.image.index];
                 }
                 console.log("Cantidad elems", Object.keys(current_on_stage).length);
@@ -246,7 +264,7 @@
                      // La imagen está dentro del contenedor
                     // Puedes realizar acciones adicionales aquí
                     console.log("Imagen soltada dentro del contenedor.", evt.stageY);
-                    console.log("Límite " + (canvas.height-120));
+                    // console.log("Límite " + (canvas.height-120));
                 }
             });
 
@@ -275,7 +293,7 @@
             // Convertir el contenido del lienzo a una imagen PNG
             var dataURL = canvas.toDataURL("image/png");
 
-            var nombre = document.getElementById("nombre").value;
+            var nombre = ""; //document.getElementById("nombre").value;
 
             nombre = accentsTidy(nombre);
             nombre = nombre.replace(/ /g, "_");
