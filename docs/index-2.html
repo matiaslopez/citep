@@ -174,17 +174,17 @@
 
         var colors_palette = ["#999999", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7"]
 
-        function selectColor(colorNum){
-            // if (colors < 1) colors = 1; // defaults to one color - avoid divide by zero
+        // function selectColor(colorNum){
+        //     // if (colors < 1) colors = 1; // defaults to one color - avoid divide by zero
 
-            return "hsl(" + (colorNum * (360 / imagenes.length) % 360) + ",100%,50%)";
-        }
+        //     return "hsl(" + (colorNum * (360 / imagenes.length) % 360) + ",100%,50%)";
+        // }
         // var color = selectColor(Math.floor(Math.random() * 10), 10);
 
-        // function selectColor(number) {
-        //     const hue = number * 137.508; // use golden angle approximation
-        //     return `hsl(${hue},100%,75%)`;
-        // }
+        function selectColor(number) {
+            const hue = number * 137.508; // use golden angle approximation
+            return `hsl(${hue},100%,50%)`;
+        }
 
         var current_groups = {};
         var current_elems = {};
