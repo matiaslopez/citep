@@ -92,6 +92,7 @@
                 <div class="btn-container">
                     <button id="descargarBtn">Descargar imagen</button>
                     <button id="reiniciarBtn">Reiniciar</button>
+                    <button id="componentesBtn">Ver Componenetes</button>
                     <button id="volverBtn">Volver a las instrucciones</button>
                 </div>
             </div>
@@ -109,51 +110,127 @@
                 bitmap.group = key
             }
             current_on_stage = {};
+            grafo.reset();
+            updateText()
         });
-        // var text = new createjs.Text("Clasifiación de " + nombre, "12px Arial", "#000000");
-        var text = new createjs.Text();
+
+        document.getElementById("componentesBtn").addEventListener("click", function () {
+            // Obtener el nombre ingresado por el usuario
+            console.log(grafo.getConnectedComponents());
+        });
+
+
+        function updateText(){
+            ids_on_stage = Object.keys(current_on_stage).map(function(x) { return parseInt(x); });
+            groups_on_stage = grafo.getConnectedComponentsNumber(ids_on_stage)
+
+            remaing_images = imagenes.length - Object.keys(current_on_stage).length;
+            if (groups_on_stage > 0) {
+                if (groups_on_stage == 1){
+                    textContGroups.text = "Hay " + groups_on_stage + " solo grupo";
+                    textContGroups.color = "#FF0000";
+                } else {
+                    if (groups_on_stage == imagenes.length){
+                        textContGroups.text = "Hay " + groups_on_stage + " grupos formados";
+                        textContGroups.color = "#FF0000";
+                    } else {
+                        textContGroups.text = "Hay " + groups_on_stage + " grupos formados";
+                        textContGroups.color = "#000000";
+                    }
+                }
+            } else {
+                textContGroups.text = "No hay grupos formados aun";
+                textContGroups.color = "#FF0000";
+            }
+            textContGroups.font = "14px Arial"
+            textContGroups.x = canvas.width - 10;
+            textContGroups.y = 15;
+            textContGroups.textAlign = "right";
+            textContGroups.textBaseline = "alphabetic";
+
+            if (remaing_images == 0){
+                textContChar.text = ""
+                textContChar.color = "#000000";
+            } else {
+                if (remaing_images > 1){
+                    textContChar.text = "Faltan " + remaing_images + " elementos"
+                } else {
+                    textContChar.text = "Falta " + remaing_images + " elemento"
+                }
+                textContChar.color = "#FF0000";
+            }
+
+            // text.text += "\nHay " + groups_on_stage + " grupos"
+            textContChar.font = "14px Arial"
+            textContChar.x = canvas.width - 10;
+            textContChar.y = 30;
+            textContChar.textAlign = "right";
+            textContChar.textBaseline = "alphabetic";
+            // stage.addChild(text);
+        }
+
+        // var text = new createjs.Text("Clasificación de " + nombre, "12px Arial", "#000000");
+        // var text = new createjs.Text();
 
         var colors_palette = ["#999999", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7"]
+
+        function selectColor(colorNum){
+            // if (colors < 1) colors = 1; // defaults to one color - avoid divide by zero
+
+            return "hsl(" + (colorNum * (360 / imagenes.length) % 360) + ",100%,50%)";
+        }
+        // var color = selectColor(Math.floor(Math.random() * 10), 10);
+
+        // function selectColor(number) {
+        //     const hue = number * 137.508; // use golden angle approximation
+        //     return `hsl(${hue},100%,75%)`;
+        // }
 
         var current_groups = {};
         var current_elems = {};
         var current_on_stage = {};
 
 
+
         function get_near_images(bitmap) {
-            threshold = 150;
+            threshold = 110;
             near_images = [];
             for (var key in current_on_stage) {
-                console.log("Current image position", bitmap.x, bitmap.y)
+                // console.log("Current image position", bitmap.x, bitmap.y)
                 if (current_on_stage[key].image.src == bitmap.image.src) {
                     continue;
                 }
                 var other_bitmap = current_on_stage[key];
                 var distance = Math.sqrt(Math.pow(bitmap.x - other_bitmap.x, 2) + Math.pow(bitmap.y - other_bitmap.y, 2));
-                // console.log("Distance", distance, bitmap.image.src, other_bitmap.image.src)
                 if (distance < threshold) {
                     near_images.push(other_bitmap);
-                    console.log("Near image")
                 }
             }
 
             return near_images;
         }
 
-        function get_shadow_color_temp(bitmap) {
-            near_images = get_near_images(bitmap);
-            var idx = bitmap.group;
+        function updateShadows(){
+            grafo.getConnectedComponents().forEach(group => {
+                // if (group.length > 1){
+                    console.log("Group", group);
+                    var minValue = Math.min.apply(Math, group);
+                    var col_shadow = selectColor(minValue); //colors_palette[minValue%colors_palette.length];
+                    group.forEach(elem => {
+                        if (elem in current_on_stage){
+                            current_elems[elem].shadow = new createjs.Shadow(col_shadow, 0, 0, 40);
+                        } else {
+                            current_elems[elem].shadow = null;
+                        }
+                        // current_elems[elem].group = group[0];
+                    });
+                // } else {
+                //     current_elems[group[0]].shadow = null;
+                //     // current_elems[group[0]].group = group[0];
+                // }
 
-            if (near_images.length > 0) {
-                console.log(near_images[0])
-                idx = near_images[0].group;
-            } else {
-                idx = bitmap.image.index;
-            }
-            bitmap.group = idx;
-
-            var res = colors_palette[idx%colors_palette.length];
-            return res;
+            });
+            updateText();
         }
 
         document.getElementById("volverBtn").addEventListener("click", function () {
@@ -177,8 +254,15 @@
         var contenedor = new createjs.Container();
         stage.addChild(contenedor);
 
+        var textContChar = new createjs.Text();
+        var textContGroups = new createjs.Text();
+        stage.addChild(textContChar);
+        stage.addChild(textContGroups);
+
         // Lista de imágenes
         var imagenes = [ "s01-t.png", "s02-t.png", "s03-t.png", "s04-t.png", "s05-t.png", "s06-t.png", "s07-t.png", "s08-t.png", "s09-t.png"];
+        imagenes.sort(() => Math.random() - 0.5);
+        var grafo = new Grafo(imagenes.length)
 
 
         // Función para cargar las imágenes
@@ -244,28 +328,26 @@
             bitmap.on("pressup", function (evt) {
                 // console.log("pressup");
                 var currentBitmap = evt.currentTarget;
+                grafo.removeEdgesOfNode(currentBitmap.image.index);
 
                 if (evt.stageY < canvas.height-120){
                     // add shadow to object
-                    var col_shadow = "#FF0000"
-                    col_shadow = get_shadow_color_temp(currentBitmap);
+                    // var col_shadow = "#FF0000"
+                    // col_shadow = get_shadow_color_temp(currentBitmap);
+
+                    get_near_images(currentBitmap).forEach(function (elem) {
+                        grafo.addEdge(currentBitmap.image.index, elem.image.index);
+                    });
                     // console.log("col_shadow", col_shadow)
-                    currentBitmap.shadow = new createjs.Shadow(col_shadow, 0, 0, 40);
+                    // currentBitmap.shadow = new createjs.Shadow(col_shadow, 0, 0, 40);
                     current_on_stage[evt.currentTarget.image.index] = currentBitmap;
                 } else {
-                    currentBitmap.shadow = null//new createjs.Shadow("#00FF00", 0, 0, 10);
-                    currentBitmap.group = currentBitmap.index;
+                    // currentBitmap.shadow = null//new createjs.Shadow("#00FF00", 0, 0, 10);
+                    // currentBitmap.group = currentBitmap.index;
                     delete current_on_stage[evt.currentTarget.image.index];
                 }
+                updateShadows();
                 console.log("Cantidad elems", Object.keys(current_on_stage).length);
-                // Comprobar si la imagen está dentro del contenedor
-                if (evt.stageX > contenedor.x && evt.stageX < contenedor.x + contenedor.getBounds().width &&
-                    evt.stageY > contenedor.y && evt.stageY < contenedor.y + contenedor.getBounds().height) {
-                     // La imagen está dentro del contenedor
-                    // Puedes realizar acciones adicionales aquí
-                    console.log("Imagen soltada dentro del contenedor.", evt.stageY);
-                    // console.log("Límite " + (canvas.height-120));
-                }
             });
 
             // Agregar la imagen al escenario
@@ -275,6 +357,7 @@
 
         // Llamar a la función para cargar las imágenes
         cargarImagenes();
+        updateText();
 
         // Actualizar el escenario
         createjs.Ticker.addEventListener("tick", function () {

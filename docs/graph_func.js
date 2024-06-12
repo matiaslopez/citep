@@ -1,66 +1,170 @@
 class Grafo {
     constructor(v) {
         this.V = v;
-        this.initEdges();
+        this.parent = new Array(v).fill(0).map((_, index) => index);
+        this.rank = new Array(v).fill(0);
+        this.initArrays()
     }
 
-    initEdges() {
+    initArrays() {
         this.adjListArray = [];
-        this.reset();
-    }
 
-    reset() {
-        // Crear una nueva lista para cada vértice
-        // de modo que los nodos adyacentes puedan ser almacenados
+        this.components = new Array(this.V).fill(0).map((_, index) => [index]);
+
         for (let i = 0; i < this.V; i++) {
             this.adjListArray.push([]);
         }
-
     }
 
-    // Añadir un borde a un grafo no dirigido
-    addEdge(src, dest) {
-        // Añadir un borde desde src a dest
-        this.adjListArray[src].push(dest);
+    reset() {
+        this.initArrays();
+    }
 
-        // Como el grafo es no dirigido, añadir un borde de dest a src también
+    find(node) {
+        if (this.parent[node] !== node) {
+            this.parent[node] = this.find(this.parent[node]);
+        }
+        return this.parent[node];
+    }
+
+    union(node1, node2) {
+        let root1 = this.find(node1);
+        let root2 = this.find(node2);
+
+        if (root1 !== root2) {
+            if (this.rank[root1] > this.rank[root2]) {
+                this.parent[root2] = root1;
+                this.mergeComponents(root1, root2);
+            } else if (this.rank[root1] < this.rank[root2]) {
+                this.parent[root1] = root2;
+                this.mergeComponents(root2, root1);
+            } else {
+                this.parent[root2] = root1;
+                this.rank[root1]++;
+                this.mergeComponents(root1, root2);
+            }
+        }
+    }
+
+    mergeComponents(root1, root2) {
+        let comp1 = this.components[root1];
+        let comp2 = this.components[root2];
+        this.components[root1] = comp1.concat(comp2);
+        this.components[root2] = [];
+    }
+
+    addEdge(src, dest) {
+        this.adjListArray[src].push(dest);
         this.adjListArray[dest].push(src);
+        this.union(src, dest);
     }
 
     removeEdgesOfNode(node) {
         this.adjListArray[node].forEach(element => {
             this.adjListArray[element].splice(this.adjListArray[element].indexOf(node), 1);
         });
-
         this.adjListArray[node] = [];
-    }
 
-    DFSUtil(v, visited, component) {
-        visited[v] = true;
-        component.push(v);
+        // Reset Union-Find structures and recompute components
+        this.parent = new Array(this.V).fill(0).map((_, index) => index);
+        this.rank = new Array(this.V).fill(0);
+        this.components = new Array(this.V).fill(0).map((_, index) => [index]);
 
-        for (let x = 0; x < this.adjListArray[v].length; x++) {
-            if (!visited[this.adjListArray[v][x]]) {
-                this.DFSUtil(this.adjListArray[v][x], visited, component);
+        for (let i = 0; i < this.V; i++) {
+            for (let j = 0; j < this.adjListArray[i].length; j++) {
+                this.union(i, this.adjListArray[i][j]);
             }
         }
     }
 
-    connectedComponents() {
-        let visited = new Array(this.V).fill(false);
-        let components = [];
+    getConnectedComponentsNumber(filterNodes = []) {
+        let result = this.components.filter(component => component.length > 0 && filterNodes.includes(component[0]));
+        return result.length;
+    }
 
-        for (let v = 0; v < this.V; ++v) {
-            if (!visited[v]) {
-                let component = [];
-                this.DFSUtil(v, visited, component);
-                components.push(component);
-            }
-        }
-
-        return components;
+    getConnectedComponents() {
+        let result = this.components.filter(component => component.length > 0);
+        return result;
     }
 }
+
+// // Ejemplo de uso
+// let grafo = new Grafo(5);
+// grafo.addEdge(0, 1);
+// grafo.addEdge(0, 4);
+// grafo.addEdge(1, 2);
+// grafo.addEdge(1, 3);
+// grafo.addEdge(1, 4);
+// grafo.addEdge(2, 3);
+// grafo.addEdge(3, 4);
+
+// console.log("Componentes Conectadas:");
+// console.log(grafo.getConnectedComponents());
+
+
+// class Grafo {
+//     constructor(v) {
+//         this.V = v;
+//         this.initEdges();
+//     }
+
+//     initEdges() {
+//         this.adjListArray = [];
+//         this.reset();
+//     }
+
+//     reset() {
+//         // Crear una nueva lista para cada vértice
+//         // de modo que los nodos adyacentes puedan ser almacenados
+//         for (let i = 0; i < this.V; i++) {
+//             this.adjListArray.push([]);
+//         }
+
+//     }
+
+//     // Añadir un borde a un grafo no dirigido
+//     addEdge(src, dest) {
+//         // Añadir un borde desde src a dest
+//         this.adjListArray[src].push(dest);
+
+//         // Como el grafo es no dirigido, añadir un borde de dest a src también
+//         this.adjListArray[dest].push(src);
+//     }
+
+//     removeEdgesOfNode(node) {
+//         this.adjListArray[node].forEach(element => {
+//             this.adjListArray[element].splice(this.adjListArray[element].indexOf(node), 1);
+//         });
+
+//         this.adjListArray[node] = [];
+//     }
+
+//     DFSUtil(v, visited, component) {
+//         visited[v] = true;
+//         component.push(v);
+
+//         for (let x = 0; x < this.adjListArray[v].length; x++) {
+//             if (!visited[this.adjListArray[v][x]]) {
+//                 this.DFSUtil(this.adjListArray[v][x], visited, component);
+//             }
+//         }
+//     }
+
+//     connectedComponents() {
+//         let visited = new Array(this.V).fill(false);
+//         let components = [];
+
+//         for (let v = 0; v < this.V; ++v) {
+//             if (!visited[v]) {
+//                 let component = [];
+//                 this.DFSUtil(v, visited, component);
+//                 components.push(component);
+//             }
+//         }
+
+//         return components;
+//     }
+// }
 
 // // Ejemplo de uso
 // let grafo = new Grafo(5);
