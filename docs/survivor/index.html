@@ -77,7 +77,7 @@
         /* Botón de volver */
         #back-button {
             margin-top: 20px;
-            padding: 10px 20px;
+            padding: 5px 20px;
             font-size: 1.2em;
             cursor: pointer;
         }
@@ -112,16 +112,10 @@
 </div>
 
 <div class="result-container" id="result-container">
-    <h2>Impactos</h2>
+    <h2>Impactos</h2><button id="back-button" onclick="resetPage()">Enviar otro avión</button>
 
     <!-- Contenedor para las 3 imágenes alineadas horizontalmente -->
     <div class="result-row">
-        <!-- Imagen original -->
-        <div>
-            <h3>Original</h3>
-            <img id="original-image" src="empty.png" alt="Original">
-        </div>
-
         <!-- Imagen generada -->
         <div>
             <h3>Resultado <span id="control"></span></h3>
@@ -130,18 +124,23 @@
 
         <!-- Imagen superpuesta -->
         <div>
-            <h3>Resultado final</h3>
+            <h3>Impactos sobre refuerzo</h3>
             <div id="overlay-container">
                 <img id="original-image-overlay" src="empty.png" alt="Original">
                 <img id="superposed-image" src="empty.png" alt="Superposed">
             </div>
         </div>
-    </div>
 
+        <!-- Imagen original -->
+        <div>
+            <h3>Original</h3>
+            <img id="original-image" src="empty.png" alt="Original">
+        </div>
+    </div>
     <!-- <h3>Número Aleatorio:</h3>
     <input type="text" id="random-number" readonly> -->
 
-    <button id="back-button" onclick="resetPage()">Enviar otro avión</button>
+
 </div>
 
 <script src="script.js"></script>
