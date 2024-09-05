@@ -14,6 +14,7 @@ const imageDictionary = {
 
 // Función para generar una imagen de resultado y mostrar la vista de resultados
 function generateResult(id) {
+    window.scrollTo(0, 0);
     // Ocultar la sección de selección de imágenes
     document.getElementById("init-container").style.display = "none";
 
@@ -48,6 +49,7 @@ function generateResult(id) {
 
 // Función para resetear la página y volver a la vista inicial
 function resetPage() {
+    window.scrollTo(0, 0);
     // Ocultar la sección de resultados
     document.getElementById("result-container").style.display = "none";
 

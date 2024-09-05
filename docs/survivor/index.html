@@ -38,9 +38,12 @@
             cursor: pointer;
         }
 
+
+
         /* Contenedor para las imágenes en la sección de resultados */
         .result-row {
             display: flex;
+            flex-wrap: wrap;
             justify-content: center;
             align-items: center;
             gap: 20px;
@@ -85,22 +88,21 @@
             flex-direction: column;
             align-items: center;
             gap: 20px;
+            max-width: 700px;
         }
     </style>
 </head>
 <body>
 
 <div class="init-container" id="init-container">
-    <h2>Enviar un avión reforzado con:</h2>
-    <div class="image-grid" id="image-selection-1">
+    <h2>Seleccionar el refuerzo del avión</h2>
+    <div class="image-grid" id="image-selection">
         <!-- 10 imágenes clickeables -->
         <img src="refuerzo_01.png" alt="Image 1" id="1" onclick="generateResult(1)">
         <img src="refuerzo_02.png" alt="Image 2" id="2" onclick="generateResult(2)">
         <img src="refuerzo_03.png" alt="Image 3" id="3" onclick="generateResult(3)">
         <img src="refuerzo_04.png" alt="Image 4" id="4" onclick="generateResult(4)">
         <img src="refuerzo_05.png" alt="Image 5" id="5" onclick="generateResult(5)">
-    </div>
-    <div class="image-grid" id="image-selection-2">
         <img src="refuerzo_06.png" alt="Image 6" id="6" onclick="generateResult(6)">
         <img src="refuerzo_07.png" alt="Image 7" id="7" onclick="generateResult(7)">
         <img src="refuerzo_08.png" alt="Image 8" id="8" onclick="generateResult(8)">
