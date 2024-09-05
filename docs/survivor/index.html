@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sesgo del superviviente</title>
+    <title>Sesgo del Superviviente</title>
     <style>
         /* Centra todo el contenido de la página */
         body {
@@ -17,7 +17,8 @@
 
         /* Diseño para la imagen generada y el contenedor superpuesto */
         .result-container {
-            display: flex;
+            display: none; /* Inicialmente oculto */
+            flex-direction: column;
             justify-content: center;
             align-items: center;
             gap: 20px;
@@ -37,7 +38,15 @@
             cursor: pointer;
         }
 
-        #result-image {
+        /* Contenedor para las imágenes en la sección de resultados */
+        .result-row {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+        }
+
+        #result-image, #original-image, #superposed-image {
             max-width: 250px;
             max-height: 250px;
         }
@@ -45,8 +54,8 @@
         /* Contenedor para las imágenes superpuestas */
         #overlay-container {
             position: relative;
-            width: 300px;
-            height: 300px;
+            width: 250px;
+            height: 250px;
         }
 
         #overlay-container img {
@@ -61,103 +70,77 @@
             text-align: center;
             font-size: 1.2em;
         }
+
+        /* Botón de volver */
+        #back-button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 1.2em;
+            cursor: pointer;
+        }
+
+        /* Contenedor inicial */
+        .init-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
     </style>
 </head>
 <body>
 
-<h1>Enviar al ataque con refuerzo</h1>
-
-<div class="image-grid">
-    <!-- 10 clickeable images -->
-    <img src="refuerzo_01.png" alt="Image 1" id="1" onclick="generateResult(1)">
-    <img src="refuerzo_02.png" alt="Image 2" id="2" onclick="generateResult(2)">
-    <img src="refuerzo_03.png" alt="Image 3" id="3" onclick="generateResult(3)">
-    <img src="refuerzo_04.png" alt="Image 4" id="4" onclick="generateResult(4)">
-    <img src="refuerzo_05.png" alt="Image 5" id="5" onclick="generateResult(5)">
-</div>
-<div class="image-grid">
-    <img src="refuerzo_06.png" alt="Image 6" id="6" onclick="generateResult(6)">
-    <img src="refuerzo_07.png" alt="Image 7" id="7" onclick="generateResult(7)">
-    <img src="refuerzo_08.png" alt="Image 8" id="8" onclick="generateResult(8)">
-    <img src="refuerzo_09.png" alt="Image 9" id="9" onclick="generateResult(9)">
-    <img src="refuerzo_10.png" alt="Image 9" id="9" onclick="generateResult(10)">
-</div>
-
-<div class="result-container">
-    <!-- Imagen generada -->
-    <div>
-        <h2>Impactos</h2>
-        <img id="result-image" src="empty.png" alt="Result">
-        <h3>Random Number:</h3>
-        <input type="text" id="random-number" readonly>
+<div class="init-container" id="init-container">
+    <h2>Enviar un avión reforzado con:</h2>
+    <div class="image-grid" id="image-selection-1">
+        <!-- 10 imágenes clickeables -->
+        <img src="refuerzo_01.png" alt="Image 1" id="1" onclick="generateResult(1)">
+        <img src="refuerzo_02.png" alt="Image 2" id="2" onclick="generateResult(2)">
+        <img src="refuerzo_03.png" alt="Image 3" id="3" onclick="generateResult(3)">
+        <img src="refuerzo_04.png" alt="Image 4" id="4" onclick="generateResult(4)">
+        <img src="refuerzo_05.png" alt="Image 5" id="5" onclick="generateResult(5)">
     </div>
+    <div class="image-grid" id="image-selection-2">
+        <img src="refuerzo_06.png" alt="Image 6" id="6" onclick="generateResult(6)">
+        <img src="refuerzo_07.png" alt="Image 7" id="7" onclick="generateResult(7)">
+        <img src="refuerzo_08.png" alt="Image 8" id="8" onclick="generateResult(8)">
+        <img src="refuerzo_09.png" alt="Image 9" id="9" onclick="generateResult(9)">
+        <img src="refuerzo_10.png" alt="Image 10" id="10" onclick="generateResult(10)">
+    </div>
+</div>
 
-    <!-- Contenedor para las imágenes superpuestas -->
-    <div>
-        <h2>Resultado final</h2>
-        <div id="overlay-container">
+<div class="result-container" id="result-container">
+    <h2>Impactos</h2>
+
+    <!-- Contenedor para las 3 imágenes alineadas horizontalmente -->
+    <div class="result-row">
+        <!-- Imagen original -->
+        <div>
+            <h3>Original</h3>
             <img id="original-image" src="empty.png" alt="Original">
-            <img id="superposed-image" src="empty.png" alt="Superposed">
+        </div>
+
+        <!-- Imagen generada -->
+        <div>
+            <h3>Resultado <span id="control"></span></h3>
+            <img id="result-image" src="empty.png" alt="Result">
+        </div>
+
+        <!-- Imagen superpuesta -->
+        <div>
+            <h3>Resultado final</h3>
+            <div id="overlay-container">
+                <img id="original-image-overlay" src="empty.png" alt="Original">
+                <img id="superposed-image" src="empty.png" alt="Superposed">
+            </div>
         </div>
     </div>
-</div>
-<!--
-<h2>Generated Image</h2>
-<img id="result-image" src="empty.png" alt="Result">
 
-<h3>Random Number:</h3>
-<input type="text" id="random-number" readonly>
+    <!-- <h3>Número Aleatorio:</h3>
+    <input type="text" id="random-number" readonly> -->
 
-<h2>Superposed Images</h2>
-<div id="overlay-container" style="position: relative; width: 300px; height: 300px;">
-    <img id="original-image" src="empty.png" alt="Original" style="position: absolute; width: 100%; height: 100%;">
-    <img id="superposed-image" src="empty.png" alt="Superposed" style="position: absolute; width: 100%; height: 100%;">
-</div> -->
-
-
-<!--
-<h2>All images</h2>
-<div class="image-grid">1
-    <img src="refuerzo_01.png" alt="Image 1" id="1">
-    <img src="damage_01.png" alt="Image 1" id="1">
+    <button id="back-button" onclick="resetPage()">Enviar otro avión</button>
 </div>
-<div class="image-grid">2
-    <img src="refuerzo_02.png" alt="Image 1" id="1">
-    <img src="damage_02.png" alt="Image 1" id="1">
-</div>
-<div class="image-grid">3
-    <img src="refuerzo_03.png" alt="Image 1" id="1">
-    <img src="damage_03.png" alt="Image 1" id="1">
-</div>
-<div class="image-grid">4
-    <img src="refuerzo_04.png" alt="Image 1" id="1">
-    <img src="damage_04.png" alt="Image 1" id="1">
-</div>
-<div class="image-grid">5
-    <img src="refuerzo_05.png" alt="Image 1" id="1">
-    <img src="damage_05.png" alt="Image 1" id="1">
-</div>
-<div class="image-grid">6
-    <img src="refuerzo_06.png" alt="Image 1" id="1">
-    <img src="damage_06.png" alt="Image 1" id="1">
-</div>
-<div class="image-grid">7
-    <img src="refuerzo_07.png" alt="Image 1" id="1">
-    <img src="damage_07.png" alt="Image 1" id="1">
-</div>
-<div class="image-grid">8
-    <img src="refuerzo_08.png" alt="Image 1" id="1">
-    <img src="damage_08.png" alt="Image 1" id="1">
-</div>
-<div class="image-grid">9
-    <img src="refuerzo_09.png" alt="Image 1" id="1">
-    <img src="damage_09.png" alt="Image 1" id="1">
-</div>
-<div class="image-grid">10
-    <img src="refuerzo_10.png" alt="Image 1" id="1">
-    <img src="damage_10.png" alt="Image 1" id="1">
-</div> -->
-
 
 <script src="script.js"></script>
 
